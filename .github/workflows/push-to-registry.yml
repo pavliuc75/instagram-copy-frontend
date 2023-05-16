@@ -1,0 +1,29 @@
+name: Push to Azure Container Registry
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      # Set up Docker and login to Azure Container Registry
+      - name: Set up Docker and login
+        uses: azure/docker-login@v1
+        with:
+          login-server: instagram0copy0acr.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      # Build and tag Docker image
+      - name: Build and tag Docker image
+        run: docker build -t instagram0copy0acr.azurecr.io/instagram-copy-acr:${{ github.sha }} .
+
+      # Push Docker image to Azure Container Registry
+      - name: Push Docker image to Azure Container Registry
+        run: docker push instagram0copy0acr.azurecr.io/instagram-copy-acr:${{ github.sha }}
