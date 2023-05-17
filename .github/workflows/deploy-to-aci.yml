@@ -1,0 +1,70 @@
+#name: Push to Azure Container Registry
+#on:
+#  push:
+#    branches:
+#      - main
+#
+#jobs:
+#  build-and-push:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#
+#      # Set up Docker and login to Azure Container Registry
+#      - name: Set up Docker and login
+#        uses: azure/docker-login@v1
+#        with:
+#          login-server: instagram0copy0acr.azurecr.io
+#          username: ${{ secrets.REGISTRY_USERNAME }}
+#          password: ${{ secrets.REGISTRY_PASSWORD }}
+#
+#      # Build and tag Docker image
+#      - name: Build and tag Docker image
+#        run: docker build -t instagram0copy0acr.azurecr.io/instagram-copy-frontend:${{ github.sha }} .
+#
+#      # Push Docker image to Azure Container Registry
+#      - name: Push Docker image to Azure Container Registry
+#        run: docker push instagram0copy0acr.azurecr.io/instagram-copy-frontend:${{ github.sha }}
+#
+#
+
+name: Deploy to Azure Container Instances
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t instagram0copy0acr.azurecr.io/instagram-copy-frontend:${{ github.sha }} .
+          docker push instagram0copy0acr.azurecr.io/instagram-copy-frontend:${{ github.sha }}
+
+      - name: Update Azure Container Instance
+        uses: azure/aci-deploy@v1
+        with:
+          resource-group: instagram-copy
+#          dns-name-label: <dns-name-label>
+          image: instagram0copy0acr.azurecr.io/instagram-copy-frontend:${{ github.sha }}
+          registry-login-server: instagram0copy0acr.azurecr.io
+          registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          container-name: instagram-copy-frontend-aci
+          container-group-name: instagram-copy-aci-group
+          os-type: Linux
+
