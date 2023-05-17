@@ -2,7 +2,8 @@ name: Deploy to Azure Container Instances
 on:
   push:
     branches:
-      - main
+      - DISABLED
+#      - main
 
 jobs:
   build-and-deploy:
