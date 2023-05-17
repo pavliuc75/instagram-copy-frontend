@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: instagram-copy-frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: instagram-copy-frontend
+  template:
+    metadata:
+      labels:
+        app: instagram-copy-frontend
+    spec:
+      containers:
+        - name: instagram-copy-frontend-container
+          image: instagram0copy0acr.azurecr.io/instagram-copy-frontend:4fa8e788071afa5c5aaeace11ecec072b0b344ff
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
